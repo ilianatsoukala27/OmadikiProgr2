@@ -7,3 +7,8 @@
 Πρώτο commit - Χρήστος Παπαδημητρίου
 Πρώτο commit - Ελένη Δήμα
 Πρώτο commit - Anna Savvopoulou
+
+# Νέο README
+Πρώτο commit - Ηλιάνα Τσουκαλά
+
+Πρώτο commit - Ηλιάνα Τσουκαλά
