@@ -7,6 +7,11 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class BudgetManager {
+
+    private static final String DB_URL = "jdbc:sqlite:C:/Path_To_DB_File";
+
+    private BudgetData budgetData;
+
     static String[] categoryNames = {
             "Υγεία", "Παιδεία", "Άμυνα", "Κοινωνική Πρόνοια",
             "Φόροι", "Ευρωπαϊκά κονδύλια", "Λοιπά έσοδα"
@@ -16,7 +21,33 @@ public class BudgetManager {
         "Φόρος εισοδήματος, ΦΠΑ, εταιρικοί φόροι", "Χρηματοδότηση από Ε.Ε.", "Άλλα έσοδα του κράτους"
     };
 
-    private static final String DB_URL = "jdbc:sqlite:C:/Path_To_DB_File";
+    public BudgetManager() {
+        budgetData = new BudgetData();
+    }
+
+    public void initialize() {
+        System.out.println("Initializing budget system...");
+
+        budgetData.loadCategoriesFromDB();
+
+        if (budgetData.getCategories().isEmpty()) {
+            System.out.println("Warning: No categories loaded from the database.");
+        } else {
+            System.out.println("Budget categories loaded successfully.");
+        }
+
+        System.out.println("Initialization completed.\n");
+    }
+
+    public BudgetData getBudgetData() {
+        return budgetData;
+    }
+
+    public void applyChanges() {
+    }
+
+    public void saveToDB() {
+    }
     
     ////
     //Create new user
