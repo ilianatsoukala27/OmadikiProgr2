@@ -59,7 +59,7 @@ public class BudgetData {
 
     }
 
-    public void showCanges() {
+    public void showChanges() {
 
     }
 
