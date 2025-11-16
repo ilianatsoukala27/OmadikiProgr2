@@ -18,6 +18,8 @@ public class BudgetData {
         changes = new HashMap<>();
     }
 
+    private int bugdetYear; // Declare the variable
+
     // φορτωμα κατηγοριων απο την βαση
     public void loadCategoriesFromDB() {
         String sql = """
@@ -30,9 +32,9 @@ public class BudgetData {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, bugdetYear);
+            pstmt.setInt(1, bugdetYear); // Use the variable
             
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
             categories.clear();
 
