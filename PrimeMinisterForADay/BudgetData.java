@@ -1,41 +1,43 @@
 package PrimeMinisterForADay;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BudgetData {
 
-    private Map<String, Double> categories;
-    private Map<String, Double> changes;
+    private Map<String, Double> categories = new HashMap<>();
+    private Map<String, Double> changes = new HashMap<>();
 
-    // - Jdbc credentials - τα αλλάζουμε όταν κάνουμε την σύνδεση
-    private final String DB_URL = "jdbc:mysql://localhost:3306/budget_db";
-    private final String DB_USER = "root";
-    private final String DB_PASSWORD = "password";
+    private String dbUrl;
+    private int budgetYear;
 
-    public BudgetData() {
-        categories = new HashMap<>();
-        changes = new HashMap<>();
+    public void setDbUrl(String dbUrl) {
+        this.dbUrl = dbUrl;
     }
 
-    private int bugdetYear; // Declare the variable
+    public void setBudgetYear(int year) {
+        this.budgetYear = year;
+    }
 
-    // φορτωμα κατηγοριων απο την βαση
+    public Map<String, Double> getCategories() {
+        return categories;
+    }
+
     public void loadCategoriesFromDB() {
-        String sql = """
-                SELECT category_name, current_amount
-                FROM categories
-                JOIN budgets ON categories.id_budget = budgets.id_budget
-                WHERE budgets.bugdet_year = ?
-                """;
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        String sql =
+            "SELECT categories.category_name, categories.current_amount " +
+            "FROM categories " +
+            "JOIN budgets ON categories.id_budget = budgets.id_budget " +
+            "WHERE budgets.budget_year = ?";
+
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, bugdetYear); // Use the variable
-            
-            ResultSet rs = pstmt.executeQuery();
+            pstmt.setInt(1, budgetYear);
 
+            ResultSet rs = pstmt.executeQuery();
             categories.clear();
 
             while (rs.next()) {
@@ -44,26 +46,14 @@ public class BudgetData {
                 categories.put(name, amount);
             }
 
-            System.out.println("Οι κατηγορίες φορτώθηκαν με επιτυχία.");
+            System.out.println("✔ Οι κατηγορίες φορτώθηκαν από SQLite.");
 
-    } catch (SQLException e) {
-            System.out.println("Σφάλμα στη βάση δεδομένων " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("❌ Σφάλμα SQLite: " + e.getMessage());
         }
     }
 
-    public void displayBudget() {
-
-    }
-
-    public void modifyCategory() {
-
-    }
-
-    public void showChanges() {
-
-    }
-
-    
+    public void displayBudget() {}
+    public void modifyCategory() {}
+    public void showChanges() {}
 }
-
-

@@ -1,9 +1,5 @@
 package PrimeMinisterForADay;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 
 public class BudgetManager {
@@ -13,16 +9,23 @@ public class BudgetManager {
     private BudgetData budgetData;
 
     static String[] categoryNames = {
-            "Υγεία", "Παιδεία", "Άμυνα", "Κοινωνική Πρόνοια",
-            "Φόροι", "Ευρωπαϊκά κονδύλια", "Λοιπά έσοδα"
-        };
+        "Υγεία", "Παιδεία", "Άμυνα", "Κοινωνική Πρόνοια",
+        "Φόροι", "Ευρωπαϊκά κονδύλια", "Λοιπά έσοδα"
+    };
     static String[] categoryDescriptions = {
-        "Δαπάνες για νοσοκομεία, φάρμακα, μισθούς υγειονομικών", "Εκπαίδευση, πανεπιστήμια, σχολεία, έρευνα", "Στρατιωτικός εξοπλισμός, μισθοί, εκπαίδευση προσωπικού", "Συντάξεις, επιδόματα, κοινωνική στήριξη",
-        "Φόρος εισοδήματος, ΦΠΑ, εταιρικοί φόροι", "Χρηματοδότηση από Ε.Ε.", "Άλλα έσοδα του κράτους"
+        "Δαπάνες για νοσοκομεία, φάρμακα, μισθούς υγειονομικών",
+        "Εκπαίδευση, πανεπιστήμια, σχολεία, έρευνα",
+        "Στρατιωτικός εξοπλισμός, μισθοί, εκπαίδευση προσωπικού",
+        "Συντάξεις, επιδόματα, κοινωνική στήριξη",
+        "Φόρος εισοδήματος, ΦΠΑ, εταιρικοί φόροι",
+        "Χρηματοδότηση από Ε.Ε.",
+        "Άλλα έσοδα του κράτους"
     };
 
     public BudgetManager() {
         budgetData = new BudgetData();
+        budgetData.setDbUrl(DB_URL);    
+        budgetData.setBudgetYear(2025); 
     }
 
     public void initialize() {
@@ -43,15 +46,9 @@ public class BudgetManager {
         return budgetData;
     }
 
-    public void applyChanges() {
-    }
+    public void applyChanges() {}
+    public void saveToDB() {}
 
-    public void saveToDB() {
-    }
-    
-    ////
-    //Create new user
-    ////
     public static boolean createUser(String userName, String userPassword) {
         String sql = "INSERT INTO users (user_name, user_password, created_at, last_login) "
                    + "VALUES (?, ?, ?, ?)";
@@ -75,9 +72,6 @@ public class BudgetManager {
         }
     }
 
-    ////
-    //Create budget and categories (empty - edit later)
-    ////
     public static boolean createBudgetAndCategories(int year) {
         String budgetSql = "INSERT INTO budgets (budget_year, total_income, total_expenses, created_at, updated_at) "
                    + "VALUES (?, ?, ?, ?, ?)";
@@ -89,7 +83,6 @@ public class BudgetManager {
             long budgetId;
             LocalDateTime now = LocalDateTime.now();
 
-            //Add Budget
             try (PreparedStatement stmt = conn.prepareStatement(budgetSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 
 
@@ -109,7 +102,6 @@ public class BudgetManager {
                 }
             }
 
-            //Add Categories
             try (PreparedStatement stmt = conn.prepareStatement(categorySql)) {
                 for (int i = 0; i < categoryNames.length; i++) {
                     stmt.setLong(1, budgetId);
@@ -132,3 +124,4 @@ public class BudgetManager {
         }
     }
 }
+
