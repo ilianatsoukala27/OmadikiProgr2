@@ -7,18 +7,14 @@ public class BudgetData {
 
     private Map<String, Double> categories;
     private Map<String, Double> changes;
+    private int budgetYear;
 
-    // - Jdbc credentials - τα αλλάζουμε όταν κάνουμε την σύνδεση
-    private final String DB_URL = "jdbc:mysql://localhost:3306/budget_db";
-    private final String DB_USER = "root";
-    private final String DB_PASSWORD = "password";
-
-    public BudgetData() {
-        categories = new HashMap<>();
-        changes = new HashMap<>();
+    public BudgetData(int budgetYear) {
+        this.budgetYear = budgetYear;
+        this.categories = new HashMap<>();
+        this.changes = new HashMap<>();
     }
 
-    private int bugdetYear; // Declare the variable
 
     // φορτωμα κατηγοριων απο την βαση
     public void loadCategoriesFromDB() {
@@ -26,13 +22,13 @@ public class BudgetData {
                 SELECT category_name, current_amount
                 FROM categories
                 JOIN budgets ON categories.id_budget = budgets.id_budget
-                WHERE budgets.bugdet_year = ?
+                WHERE budgets.budget_year = ?
                 """;
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:pm_for_one_day.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, bugdetYear); // Use the variable
+            pstmt.setInt(1, budgetYear); // Use the variable
             
             ResultSet rs = pstmt.executeQuery();
 
@@ -52,6 +48,26 @@ public class BudgetData {
     }
 
     public void displayBudget() {
+
+        System.out.println("======= STATE BUDGET =======");
+
+        if (categories.isEmpty()) {
+            System.out.println("No categories found.");
+            return;
+        }
+
+        double total = 0.0;
+        for (Map.Entry<String, Double> entry : categories.entrySet()) {
+            String categoryName = entry.getKey();
+            Double amount = entry.getValue();
+
+            System.out.printf("%-25s : %.2f EUR%n", categoryName, amount);
+            total += amount;
+        }
+
+        System.out.println("----------------------------");
+        System.out.printf("TOTAL                     : %.2f €%n", total);
+        System.out.println("==================================");
 
     }
 
