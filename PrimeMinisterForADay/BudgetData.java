@@ -71,12 +71,59 @@ public class BudgetData {
     }
 
     public void modifyCategory() {
+        if (categories.isEmpty()){
+            System.out.println("Δεν υπάρχουν κατηγορίες για επεξεργασία.");
+            return;
+        }
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
+        System.err.println("Ποια κατηγορία θέλεις να τροποποιήσεις;");
+        String categoryName = scanner.nextLine();
 
-    }
+        if (!categories.containsKey(categoryName)){
+            System.err.println("Η κατηγορία" + categoryName + "δεν βρέθηκε.");
+            return;
+        }
+        System.out.println("Δώσε νέο ποσό για την κατηγορία" + categoryName + ":");
+        double newAmount;
 
-    public void showCanges() {
+        try{
+            newAmount = Double.parseDouble(scanner.nextLine()) ;
+            }catch (NumberFormatException e) {
+                System.out.println("Μη έγκυρη τιμή.");
+                return;
+            }
 
-    }
+
+            categories.put(categoryName, newAmount);
+            changes.put(categoryName, newAmount);
+
+            System.out.println("Η κατηγορία "+ categoryName +"ενημερώθηκε σε" + newAmount + "€");
+
+        }
 
     
+
+    public void showCanges() {
+        System.out.println("CHANGES");
+        if (changes.isEmpty()) {
+            System.out.println("Δεν έχουν γίνει αλλαγές ακόμα.");
+            return;
+        }
+        System.out.println("Αλλαγές που έγιναν:");
+        for (String name : changes.keySet()){
+            double amount = changes.get(name);
+            System.out.println( name + ":" + amount + "€");
+        }
+
+
+        }
+
+
 }
+    
+
+
+    
+
+    
+
