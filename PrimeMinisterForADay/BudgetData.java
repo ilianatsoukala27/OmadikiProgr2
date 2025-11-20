@@ -1,4 +1,5 @@
 package PrimeMinisterForADay;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,6 @@ public class BudgetData {
     }
 
 
-    // φορτωμα κατηγοριων απο την βαση
     public void loadCategoriesFromDB() {
         String sql = """
                 SELECT category_name, current_amount
@@ -31,7 +31,6 @@ public class BudgetData {
             pstmt.setInt(1, budgetYear); // Use the variable
             
             ResultSet rs = pstmt.executeQuery();
-
             categories.clear();
 
             while (rs.next()) {
@@ -40,10 +39,10 @@ public class BudgetData {
                 categories.put(name, amount);
             }
 
-            System.out.println("Οι κατηγορίες φορτώθηκαν με επιτυχία.");
+            System.out.println("Οι κατηγορίες φορτώθηκαν από SQLite.");
 
-    } catch (SQLException e) {
-            System.out.println("Σφάλμα στη βάση δεδομένων " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Σφάλμα SQLite: " + e.getMessage());
         }
     }
 
@@ -81,5 +80,3 @@ public class BudgetData {
 
     
 }
-
-
