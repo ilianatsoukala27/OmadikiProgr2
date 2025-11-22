@@ -23,8 +23,8 @@ public class BudgetManager {
     };
 
     public BudgetManager() {
-        budgetData = new BudgetData();
-        budgetData.setDbUrl(DB_URL);    
+        budgetData = new BudgetData(2025);
+        budgetData.setDbUrl(DB_URL);
         budgetData.setBudgetYear(2025); 
     }
 
