@@ -1,21 +1,32 @@
 package PrimeMinisterForADay;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class BudgetData {
 
-    private Map<String, Double> categories;
+    Map<String, Double> categories;
     private Map<String, Double> changes;
     private int budgetYear;
+    private String dbUrl;
+
+    public BudgetData() {
+        this(2025); // default budget year
+    }
 
     public BudgetData(int budgetYear) {
         this.budgetYear = budgetYear;
         this.categories = new HashMap<>();
         this.changes = new HashMap<>();
+        this.dbUrl = "jdbc:sqlite:C:/Path_To_DB_File"; // consistent DB URL
     }
 
+    public void setDbUrl(String dbUrl) {
+        this.dbUrl = dbUrl;
+    }
 
     public void loadCategoriesFromDB() {
         String sql = """
@@ -25,11 +36,10 @@ public class BudgetData {
                 WHERE budgets.budget_year = ?
                 """;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:pm_for_one_day.db");
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, budgetYear); // Use the variable
-            
+            pstmt.setInt(1, budgetYear);
             ResultSet rs = pstmt.executeQuery();
             categories.clear();
 
@@ -39,7 +49,7 @@ public class BudgetData {
                 categories.put(name, amount);
             }
 
-            System.out.println("Οι κατηγορίες φορτώθηκαν από SQLite.");
+            System.out.println("Οι κατηγορίες φορτώθηκαν από τη βάση δεδομένων.");
 
         } catch (SQLException e) {
             System.out.println("Σφάλμα SQLite: " + e.getMessage());
@@ -47,7 +57,6 @@ public class BudgetData {
     }
 
     public void displayBudget() {
-
         System.out.println("======= STATE BUDGET =======");
 
         if (categories.isEmpty()) {
@@ -57,73 +66,88 @@ public class BudgetData {
 
         double total = 0.0;
         for (Map.Entry<String, Double> entry : categories.entrySet()) {
-            String categoryName = entry.getKey();
-            Double amount = entry.getValue();
-
-            System.out.printf("%-25s : %.2f EUR%n", categoryName, amount);
-            total += amount;
+            System.out.printf("%-25s : %.2f EUR%n", entry.getKey(), entry.getValue());
+            total += entry.getValue();
         }
 
         System.out.println("----------------------------");
         System.out.printf("TOTAL                     : %.2f €%n", total);
-        System.out.println("==================================");
-
+        System.out.println("============================");
     }
 
-    public void modifyCategory() {
-        if (categories.isEmpty()){
+    public void modifyCategory(Scanner scanner) {
+        if (categories.isEmpty()) {
             System.out.println("Δεν υπάρχουν κατηγορίες για επεξεργασία.");
             return;
         }
-        java.util.Scanner scanner = new java.util.Scanner(System.in);
-        System.err.println("Ποια κατηγορία θέλεις να τροποποιήσεις;");
+
+        System.out.println("Ποια κατηγορία θέλεις να τροποποιήσεις;");
         String categoryName = scanner.nextLine();
 
-        if (!categories.containsKey(categoryName)){
-            System.err.println("Η κατηγορία" + categoryName + "δεν βρέθηκε.");
+        if (!categories.containsKey(categoryName)) {
+            System.out.println("Η κατηγορία " + categoryName + " δεν βρέθηκε.");
             return;
         }
-        System.out.println("Δώσε νέο ποσό για την κατηγορία" + categoryName + ":");
+
+        System.out.println("Δώσε νέο ποσό για την κατηγορία " + categoryName + ":");
         double newAmount;
-
-        try{
-            newAmount = Double.parseDouble(scanner.nextLine()) ;
-            }catch (NumberFormatException e) {
-                System.out.println("Μη έγκυρη τιμή.");
-                return;
-            }
-
-
-            categories.put(categoryName, newAmount);
-            changes.put(categoryName, newAmount);
-
-            System.out.println("Η κατηγορία "+ categoryName +"ενημερώθηκε σε" + newAmount + "€");
-
+        try {
+            newAmount = Double.parseDouble(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Μη έγκυρη τιμή.");
+            return;
         }
 
-    
+        categories.put(categoryName, newAmount);
+        changes.put(categoryName, newAmount);
 
-    public void showCanges() {
+        System.out.println("Η κατηγορία " + categoryName + " ενημερώθηκε σε " + newAmount + "€");
+    }
+
+    public void showChanges() {
         System.out.println("CHANGES");
         if (changes.isEmpty()) {
             System.out.println("Δεν έχουν γίνει αλλαγές ακόμα.");
             return;
         }
         System.out.println("Αλλαγές που έγιναν:");
-        for (String name : changes.keySet()){
-            double amount = changes.get(name);
-            System.out.println( name + ":" + amount + "€");
+        for (Map.Entry<String, Double> entry : changes.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue() + "€");
+        }
+    }
+
+    public void saveToDB() {
+        if (changes.isEmpty()) {
+            System.out.println("Δεν υπάρχουν αλλαγές για αποθήκευση.");
+            return;
         }
 
+        String sql = "UPDATE categories SET current_amount = ?, last_modified = ? " +
+                     "WHERE category_name = ? AND id_budget = " +
+                     "(SELECT id_budget FROM budgets WHERE budget_year = ?)";
 
+        try (Connection conn = DriverManager.getConnection(dbUrl);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            conn.setAutoCommit(false);
+            LocalDateTime now = LocalDateTime.now();
+
+            for (Map.Entry<String, Double> entry : changes.entrySet()) {
+                pstmt.setDouble(1, entry.getValue());
+                pstmt.setString(2, now.toString());
+                pstmt.setString(3, entry.getKey());
+                pstmt.setInt(4, budgetYear);
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            conn.commit();
+            changes.clear();
+
+            System.out.println("Οι αλλαγές αποθηκεύτηκαν στη βάση δεδομένων.");
+
+        } catch (SQLException e) {
+            System.out.println("Σφάλμα κατά την αποθήκευση: " + e.getMessage());
         }
-
-
+    }
 }
-    
-
-
-    
-
-    
-
