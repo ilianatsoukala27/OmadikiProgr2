@@ -28,6 +28,15 @@ public class BudgetData {
         this.dbUrl = dbUrl;
     }
 
+    public Map<String, Double> getCategories() {
+        return categories;
+    }
+
+    public void setBudgetYear(int budgetYear) {
+        this.budgetYear = budgetYear;
+    }
+
+
     public void loadCategoriesFromDB() {
         String sql = """
                 SELECT category_name, current_amount
