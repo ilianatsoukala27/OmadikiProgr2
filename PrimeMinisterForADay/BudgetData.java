@@ -21,7 +21,16 @@ public class BudgetData {
         this.budgetYear = budgetYear;
         this.categories = new HashMap<>();
         this.changes = new HashMap<>();
-        this.dbUrl = "jdbc:sqlite:C:/Path_To_DB_File"; // consistent DB URL
+
+        // ✔ ΔΙΟΡΘΩΣΗ 1: σωστό SQLite JDBC URL
+        this.dbUrl = "jdbc:sqlite:pm_for_one_day.db";
+
+        // ✔ ΔΙΟΡΘΩΣΗ 2: φόρτωση SQLite driver
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            System.out.println("SQLite JDBC driver not found: " + e.getMessage());
+        }
     }
 
     public void setDbUrl(String dbUrl) {
