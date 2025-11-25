@@ -1,8 +1,8 @@
 package PrimeMinisterForADay;
+
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale.Category;
+import java.util.Map;
 
 public class BudgetManager {
 
@@ -32,7 +32,6 @@ public class BudgetManager {
 
     public void initialize() {
         System.out.println("Initializing budget system...");
-
         budgetData.loadCategoriesFromDB();
 
         if (budgetData.getCategories().isEmpty()) {
@@ -48,58 +47,39 @@ public class BudgetManager {
         return budgetData;
     }
 
+    /**
+     * Ελέγχουμε βασικούς περιορισμούς: ποσά ≥ 0, συνολική δαπάνη <= συνολικό εισόδημα
+     */
     public void applyChanges() {
-        
-        double totalIncome = 0;
-        double totalExpenses = 0;
-        List<Category> categories = budgetData.getCategories();
+        double totalIncome = 0.0;
+        double totalExpenses = 0.0;
 
+        Map<String, Double> categories = budgetData.getCategories();
         if (categories.isEmpty()) {
             System.out.println("Error: Budget must have at least one category.");
             return;
-
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        for (Map.Entry<String, Double> entry : categories.entrySet()) {
+            String name = entry.getKey();
+            double amount = entry.getValue();
 
-        for (Category c : categories) {
-
-            if (c.getInitialAmount() > c.getCurrentAmount()) {
-                System.out.println("Error: Initial amount cannot be greater than current amount for " + c.getName());
+            if (amount < 0) {
+                System.out.println("Error: Amount cannot be negative for " + name);
                 return;
             }
 
-            if (Math.round(c.getInitialAmount() * 100) / 100.0 != c.getInitialAmount() ||
-                Math.round(c.getCurrentAmount() * 100) / 100.0 != c.getCurrentAmount()) {
-                System.out.println("Error: Amounts must have at most 2 decimal places for " + c.getName());
-                return;
-
-            }
-
-            if (c.getCurrentAmount() < 0) {
-                System.out.println("Error: Amount cannot be negative for " + c.getName());
+            // Προαιρετικός έλεγχος δύο δεκαδικών
+            if (Math.round(amount * 100) / 100.0 != amount) {
+                System.out.println("Error: Amounts must have at most 2 decimal places for " + name);
                 return;
             }
 
-            if (c.getType().equals("Έσοδο")) {
-                totalIncome += c.getCurrentAmount();
+            // Απλός τύπος: τα πρώτα 4 είναι Δαπάνη, τα υπόλοιπα Έσοδο
+            if (isExpenseCategory(name)) {
+                totalExpenses += amount;
             } else {
-                totalExpenses += c.getCurrentAmount();
-            }
-
-            if (c.getLastModified().isBefore(c.getCreatedAt())) {
-                System.out.println("Error: updated_at must be >= created_at for " + c.getName());
-                return;
-            }
-
-            if (c.getCreatedAt().isAfter(now) || c.getLastModified().isAfter(now)) {
-                System.out.println("Error: Timestamps cannot be in the future for " + c.getName());
-                return;
-            }
-
-            if (!budgetData.isValidBudgetId(c.getBudgetId())) {
-                System.out.println("Error: Category " + c.getName() + " refers to a non-existent budget.");
-                return;
+                totalIncome += amount;
             }
         }
 
@@ -112,10 +92,22 @@ public class BudgetManager {
             System.out.println("Error: Total expenses cannot exceed total budget.");
             return;
         }
+
         System.out.println("All constraints passed successfully.");
     }
-    
-    public void saveToDB() {}
+
+    private boolean isExpenseCategory(String name) {
+        for (int i = 0; i < 4; i++) {
+            if (categoryNames[i].equals(name)) return true;
+        }
+        return false;
+    }
+
+    public void saveToDB() {
+        budgetData.saveToDB();
+    }
+
+    // --- Οι υπόλοιπες μέθοδοι για δημιουργία χρήστη και budget παραμένουν ίδιες ---
 
     public static boolean createUser(String userName, String userPassword) {
         String sql = "INSERT INTO users (user_name, user_password, created_at, last_login) "
@@ -152,8 +144,6 @@ public class BudgetManager {
             LocalDateTime now = LocalDateTime.now();
 
             try (PreparedStatement stmt = conn.prepareStatement(budgetSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                
-
                 stmt.setInt(1, year);
                 stmt.setDouble(2, 0.0);
                 stmt.setDouble(3, 0.0);

@@ -3,8 +3,6 @@ package PrimeMinisterForADay;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale.Category;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -39,8 +37,16 @@ public class BudgetData {
         this.dbUrl = dbUrl;
     }
 
-    public List<Category> getCategories() {
+    public Map<String, Double> getCategories() {
         return categories;
+    }
+    
+    public double getTotalBudgetAmount() {
+        double total = 0.0;
+        for (Double amount : categories.values()) {
+            total += amount;
+        }
+        return total;
     }
 
     public void setBudgetYear(int budgetYear) {
