@@ -4,13 +4,12 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale.Category;
 import java.util.Scanner;
 
 public class BudgetData {
 
-    List<String, Double> categories;
-    private List<String, Double> changes;
+    List<Category> categories;
+    private List<Category> changes;
     private int budgetYear;
     private String dbUrl;
 
@@ -84,10 +83,11 @@ public class BudgetData {
         }
 
         double total = 0.0;
-        for (List.Entry<String, Double> entry : categories.entrySet()) {
-            System.out.printf("%-25s : %.2f EUR%n", entry.getKey(), entry.getValue());
-            total += entry.getValue();
+        for (Category cat : categories) {
+            System.out.printf("%-25s : %.2f EUR%n", cat.getName(), cat.getCurrentAmount());
+            total += cat.getCurrentAmount();
         }
+
 
         System.out.println("----------------------------");
         System.out.printf("TOTAL                     : %.2f €%n", total);
@@ -95,10 +95,20 @@ public class BudgetData {
     }
 
     public void modifyCategory(Scanner scanner) {
-        if (categories.isEmpty()) {
-            System.out.println("Δεν υπάρχουν κατηγορίες για επεξεργασία.");
-            return;
-        }
+        Category target = null;
+
+for (Category cat : categories) {
+    if (cat.getName().equalsIgnoreCase(categoryName)) {
+        target = cat;
+        break;
+    }
+}
+
+    if (target == null) {
+        System.out.println("Η κατηγορία δεν βρέθηκε.");
+        return;
+    }
+
 
         System.out.println("Ποια κατηγορία θέλεις να τροποποιήσεις;");
         String categoryNames = scanner.nextLine();
@@ -130,9 +140,10 @@ public class BudgetData {
             return;
         }
         System.out.println("Αλλαγές που έγιναν:");
-        for (List.Entry<String, Double> entry : changes.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue() + "€");
+        for (Category cat : changes) {
+        System.out.println(cat.getName() + " : " + cat.getCurrentAmount() + "€");
         }
+
     }
 
     public void saveToDB() {
@@ -151,13 +162,14 @@ public class BudgetData {
             conn.setAutoCommit(false);
             LocalDateTime now = LocalDateTime.now();
 
-            for (List.Entry<String, Double> entry : changes.entrySet()) {
-                pstmt.setDouble(1, entry.getValue());
-                pstmt.setString(2, now.toString());
-                pstmt.setString(3, entry.getKey());
+            for (Category cat : changes) {
+                pstmt.setDouble(1, cat.getCurrentAmount());
+                pstmt.setString(2, cat.getLastModified().toString());
+                pstmt.setString(3, cat.getName());
                 pstmt.setInt(4, budgetYear);
                 pstmt.addBatch();
             }
+
 
             pstmt.executeBatch();
             conn.commit();
