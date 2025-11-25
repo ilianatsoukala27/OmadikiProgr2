@@ -6,7 +6,7 @@ import java.util.Locale.Category;
 
 public class BudgetManager {
 
-    private static final String DB_URL = "jdbc:sqlite:C:/Path_To_DB_File";
+    private static final String DB_URL = "jdbc:sqlite:pm_for_one_day.db";
 
     private BudgetData budgetData;
 
