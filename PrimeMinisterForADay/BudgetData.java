@@ -2,16 +2,15 @@ package PrimeMinisterForADay;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale.Category;
-import java.util.Map;
 import java.util.Scanner;
 
 public class BudgetData {
 
-    Map<String, Double> categories;
-    private Map<String, Double> changes;
+    List<String, Double> categories;
+    private List<String, Double> changes;
     private int budgetYear;
     private String dbUrl;
 
@@ -21,8 +20,8 @@ public class BudgetData {
 
     public BudgetData(int budgetYear) {
         this.budgetYear = budgetYear;
-        this.categories = new HashMap<>();
-        this.changes = new HashMap<>();
+        this.categories = new ArrayList<>();
+        this.changes = new ArrayList<>();
 
         // ✔ ΔΙΟΡΘΩΣΗ 1: σωστό SQLite JDBC URL
         this.dbUrl = "jdbc:sqlite:pm_for_one_day.db";
@@ -85,7 +84,7 @@ public class BudgetData {
         }
 
         double total = 0.0;
-        for (Map.Entry<String, Double> entry : categories.entrySet()) {
+        for (List.Entry<String, Double> entry : categories.entrySet()) {
             System.out.printf("%-25s : %.2f EUR%n", entry.getKey(), entry.getValue());
             total += entry.getValue();
         }
@@ -102,14 +101,14 @@ public class BudgetData {
         }
 
         System.out.println("Ποια κατηγορία θέλεις να τροποποιήσεις;");
-        String categoryName = scanner.nextLine();
+        String categoryNames = scanner.nextLine();
 
         if (!categories.containsKey(categoryName)) {
             System.out.println("Η κατηγορία " + categoryName + " δεν βρέθηκε.");
             return;
         }
 
-        System.out.println("Δώσε νέο ποσό για την κατηγορία " + categoryName + ":");
+        System.out.println("Δώσε νέο ποσό για την κατηγορία " + categoryNames + ":");
         double newAmount;
         try {
             newAmount = Double.parseDouble(scanner.nextLine());
@@ -118,10 +117,10 @@ public class BudgetData {
             return;
         }
 
-        categories.put(categoryName, newAmount);
-        changes.put(categoryName, newAmount);
+        categories.put(categoryNames, newAmount);
+        changes.put(categoryNames, newAmount);
 
-        System.out.println("Η κατηγορία " + categoryName + " ενημερώθηκε σε " + newAmount + "€");
+        System.out.println("Η κατηγορία " + categoryNames + " ενημερώθηκε σε " + newAmount + "€");
     }
 
     public void showChanges() {
@@ -131,7 +130,7 @@ public class BudgetData {
             return;
         }
         System.out.println("Αλλαγές που έγιναν:");
-        for (Map.Entry<String, Double> entry : changes.entrySet()) {
+        for (List.Entry<String, Double> entry : changes.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue() + "€");
         }
     }
@@ -152,7 +151,7 @@ public class BudgetData {
             conn.setAutoCommit(false);
             LocalDateTime now = LocalDateTime.now();
 
-            for (Map.Entry<String, Double> entry : changes.entrySet()) {
+            for (List.Entry<String, Double> entry : changes.entrySet()) {
                 pstmt.setDouble(1, entry.getValue());
                 pstmt.setString(2, now.toString());
                 pstmt.setString(3, entry.getKey());
