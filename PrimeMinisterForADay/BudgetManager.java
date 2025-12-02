@@ -47,9 +47,6 @@ public class BudgetManager {
         return budgetData;
     }
 
-    /**
-     * Ελέγχουμε βασικούς περιορισμούς: ποσά ≥ 0, συνολική δαπάνη <= συνολικό εισόδημα
-     */
     public void applyChanges() {
         double totalIncome = 0.0;
         double totalExpenses = 0.0;
@@ -69,13 +66,11 @@ public class BudgetManager {
                 return;
             }
 
-            // Προαιρετικός έλεγχος δύο δεκαδικών
             if (Math.round(amount * 100) / 100.0 != amount) {
                 System.out.println("Error: Amounts must have at most 2 decimal places for " + name);
                 return;
             }
 
-            // Απλός τύπος: τα πρώτα 4 είναι Δαπάνη, τα υπόλοιπα Έσοδο
             if (isExpenseCategory(name)) {
                 totalExpenses += amount;
             } else {
@@ -107,7 +102,6 @@ public class BudgetManager {
         budgetData.saveToDB();
     }
 
-    // --- Οι υπόλοιπες μέθοδοι για δημιουργία χρήστη και budget παραμένουν ίδιες ---
 
     public static boolean createUser(String userName, String userPassword) {
         String sql = "INSERT INTO users (user_name, user_password, created_at, last_login) "
