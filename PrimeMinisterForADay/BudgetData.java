@@ -22,14 +22,16 @@ public class BudgetData {
         this.categories = new HashMap<>();
         this.changes = new HashMap<>();
 
-        // ✔ ΔΙΟΡΘΩΣΗ 1: σωστό SQLite JDBC URL
+        // 1. FINAL FIXED DB URL: This assumes 'pm_for_one_day.db' is in the project's root folder
         this.dbUrl = "jdbc:sqlite:pm_for_one_day.db";
 
-        // ✔ ΔΙΟΡΘΩΣΗ 2: φόρτωση SQLite driver
+        // 2. Load Driver
         try {
             Class.forName("org.sqlite.JDBC");
+            System.out.println("✔ SQLite Driver loaded successfully.");
         } catch (ClassNotFoundException e) {
-            System.out.println("SQLite JDBC driver not found: " + e.getMessage());
+            System.err.println("❌ ERROR: SQLite JDBC Driver not found.");
+            System.err.println("Ensure 'sqlite-jdbc-3.51.0.0.jar' is in your project's libraries/classpath.");
         }
     }
 
@@ -40,7 +42,7 @@ public class BudgetData {
     public Map<String, Double> getCategories() {
         return categories;
     }
-    
+
     public double getTotalBudgetAmount() {
         double total = 0.0;
         for (Double amount : categories.values()) {
@@ -53,7 +55,6 @@ public class BudgetData {
         this.budgetYear = budgetYear;
     }
 
-
     public void loadCategoriesFromDB() {
         String sql = """
                 SELECT category_name, current_amount
@@ -65,6 +66,12 @@ public class BudgetData {
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+            // Check connection success and file location
+            try (Connection checkConn = DriverManager.getConnection(dbUrl)) {
+                System.out.println("✔ Database connection established.");
+                // Note: The URL is relative, so the file path shown might look complex, but the connection worked.
+            }
+            
             pstmt.setInt(1, budgetYear);
             ResultSet rs = pstmt.executeQuery();
             categories.clear();
@@ -75,10 +82,20 @@ public class BudgetData {
                 categories.put(name, amount);
             }
 
-            System.out.println("Οι κατηγορίες φορτώθηκαν από τη βάση δεδομένων.");
+            if (categories.isEmpty()) {
+                System.out.println("⚠️ Warning: No categories found for year " + budgetYear + ".");
+                System.out.println("Check if tables ('categories', 'budgets') exist and contain data for that year.");
+            } else {
+                System.out.println("✔ Categories loaded from database.");
+            }
 
         } catch (SQLException e) {
-            System.out.println("Σφάλμα SQLite: " + e.getMessage());
+            System.out.println("❌ Database Error (loadCategoriesFromDB): " + e.getMessage());
+            if (e.getMessage().contains("no such table")) {
+                System.out.println("Hint: The database file was found, but the SQL query failed because a required table is missing.");
+            } else if (e.getMessage().contains("unable to open database file")) {
+                System.out.println("Hint: The program could not find the 'pm_for_one_day.db' file. Check the file location again.");
+            }
         }
     }
 
@@ -170,10 +187,10 @@ public class BudgetData {
             conn.commit();
             changes.clear();
 
-            System.out.println("Οι αλλαγές αποθηκεύτηκαν στη βάση δεδομένων.");
+            System.out.println("✔ Οι αλλαγές αποθηκεύτηκαν στη βάση δεδομένων.");
 
         } catch (SQLException e) {
-            System.out.println("Σφάλμα κατά την αποθήκευση: " + e.getMessage());
+            System.out.println("❌ Σφάλμα κατά την αποθήκευση: " + e.getMessage());
         }
     }
 }
