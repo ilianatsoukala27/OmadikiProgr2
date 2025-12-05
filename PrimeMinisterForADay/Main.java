@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         BudgetManager manager = new BudgetManager();
         manager.initialize();
-
+        new BudgetGUI(manager);
         BudgetData data = manager.getBudgetData();
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
