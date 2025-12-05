@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class BudgetData {
 
     Map<String, Double> categories;
-    private Map<String, Double> changes;
+    Map<String, Double> changes;
     private int budgetYear;
     private String dbUrl;
 

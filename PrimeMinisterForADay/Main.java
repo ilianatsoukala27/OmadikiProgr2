@@ -1,14 +1,20 @@
 package PrimeMinisterForADay;
 
 import java.util.Scanner;
+import javax.swing.SwingUtilities;
 
 public class Main {
 
     public static void main(String[] args) {
         BudgetManager manager = new BudgetManager();
         manager.initialize();
-        new BudgetGUI(manager);
+
         BudgetData data = manager.getBudgetData();
+
+        // Εκκίνηση GUI με τα δεδομένα
+        SwingUtilities.invokeLater(() -> new BudgetGUI(data));
+
+        // --- Προαιρετικό: διατήρηση console menu ---
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
 
