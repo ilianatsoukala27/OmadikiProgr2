@@ -91,6 +91,53 @@ public class BudgetManager {
         System.out.println("All constraints passed successfully.");
     }
 
+    // ======= Ανάλυση ΕΣΟΔΩΝ / ΕΞΟΔΩΝ σε πολλαπλά επίπεδα =======
+    public void printIncomeExpenseAnalysis() {
+        Map<String, Double> categories = budgetData.getCategories();
+
+        if (categories.isEmpty()) {
+            System.out.println("Δεν υπάρχουν κατηγορίες για ανάλυση.");
+            return;
+        }
+
+        double totalIncome = 0.0;
+        double totalExpenses = 0.0;
+
+        System.out.println("=========== ΑΝΑΛΥΣΗ ΕΣΟΔΩΝ / ΕΞΟΔΩΝ ===========");
+
+        // 1ο επίπεδο: ΕΣΟΔΑ
+        System.out.println("\nΕΣΟΔΑ:");
+        for (Map.Entry<String, Double> entry : categories.entrySet()) {
+            String name = entry.getKey();
+            double amount = entry.getValue();
+
+            // ό,τι ΔΕΝ είναι δαπάνη θεωρείται ΕΣΟΔΟ
+            if (!isExpenseCategory(name)) {
+                System.out.printf("  %-25s : %.2f €%n", name, amount);
+                totalIncome += amount;
+            }
+        }
+        System.out.printf("  >> Σύνολο ΕΣΟΔΩΝ: %.2f €%n", totalIncome);
+
+        // 2ο επίπεδο: ΕΞΟΔΑ
+        System.out.println("\nΕΞΟΔΑ:");
+        for (Map.Entry<String, Double> entry : categories.entrySet()) {
+            String name = entry.getKey();
+            double amount = entry.getValue();
+
+            if (isExpenseCategory(name)) {   // τα 4 πρώτα: Υγεία, Παιδεία, Άμυνα, Κοιν. Πρόνοια
+                System.out.printf("  %-25s : %.2f €%n", name, amount);
+                totalExpenses += amount;
+            }
+        }
+        System.out.printf("  >> Σύνολο ΕΞΟΔΩΝ: %.2f €%n", totalExpenses);
+
+        System.out.println("\nΣυνολικό αποτέλεσμα (Έσοδα - Έξοδα): "
+                + String.format("%.2f €", (totalIncome - totalExpenses)));
+        System.out.println("===============================================\n");
+
+     }
+
     private boolean isExpenseCategory(String name) {
         for (int i = 0; i < 4; i++) {
             if (categoryNames[i].equals(name)) return true;
