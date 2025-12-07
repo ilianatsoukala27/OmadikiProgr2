@@ -221,5 +221,34 @@ public class BudgetManager {
             e.printStackTrace();
             return false;
         }
+        public void displayCategoryTotals(){
+            Map<String, Double> cayegories = budgetData.getCategories();
+           if (categories.isEmpty()) {
+        System.out.println("Δεν υπάρχουν δεδομένα προϋπολογισμού.");
+        return; 
+           }
+              System.out.println("ΣΥΓΚΕΝΤΡΩΤΙΚΑ ΑΝΑ ΚΑΤΗΓΟΡΙΑ");
+
+             double ygeia = categories.getOrDefault("Υγεία", 0.0);
+             double paideia = categories.getOrDefault("Παιδεία", 0.0);
+             double amyna = categories.getOrDefault("Άμυνα", 0.0);
+             double koinPronoia = categories.getOrDefault("Κοινωνική Πρόνοια", 0.0);
+             double foroi = categories.getOrDefault("Φόροι", 0.0);
+             double ee = categories.getOrDefault("Ευρωπαϊκά κονδύλια", 0.0);
+             double loipa = categories.getOrDefault("Λοιπά έσοδα", 0.0);
+
+            System.out.println("Υγεία               : " + ygeia + " €");
+            System.out.println("Παιδεία             : " + paideia + " €");
+            System.out.println("Άμυνα               : " + amyna + " €");
+            System.out.println("Κοινωνική Πρόνοια   : " + koinPronoia + " €");
+            System.out.println("Φόροι               : " + foroi + " €");
+            System.out.println("Ευρωπαϊκά κονδύλια  : " + ee + " €");
+            System.out.println("Λοιπά έσοδα         : " + loipa + " €");
+
+            
+        }
+
+      
+
     }
 }
