@@ -24,7 +24,8 @@ public class Main {
             System.out.println("2. Τροποποίησε κατηγορία");
             System.out.println("3. Δες αλλαγές");
             System.out.println("4. Αποθήκευση αλλαγών στη βάση");
-            System.out.println("5. Έξοδος");
+            System.out.println("5. Ανάλυση εσόδων / εξόδων");
+            System.out.println("6. Έξοδος");
             System.out.print("Επέλεξε μία επιλογή: ");
 
             String choice = scanner.nextLine();
@@ -43,6 +44,9 @@ public class Main {
                     data.saveToDB();
                     break;
                 case "5":
+                    manager.printIncomeExpenseAnalysis();
+                    break;
+                case "6":
                     exit = true;
                     System.out.println("Έξοδος από το πρόγραμμα.");
                     break;
