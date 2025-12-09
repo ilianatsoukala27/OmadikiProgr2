@@ -70,6 +70,7 @@ public class BudgetManager {
             e.printStackTrace();
             return false;
         }
+    
     }
 
     public static boolean createBudgetAndCategories(int year) {
@@ -122,8 +123,10 @@ public class BudgetManager {
             e.printStackTrace();
             return false;
         }
+    }
+
         public void displayCategoryTotals(){
-            Map<String, Double> cayegories = budgetData.getCategories();
+            Map<String, Double> categories = budgetData.getCategories();
            if (categories.isEmpty()) {
         System.out.println("Δεν υπάρχουν δεδομένα προϋπολογισμού.");
         return; 
@@ -148,6 +151,8 @@ public class BudgetManager {
 
             
         }
+    
+
 
       
 
