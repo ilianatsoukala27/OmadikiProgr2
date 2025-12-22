@@ -22,7 +22,6 @@ public class BudgetData {
         this.categories = new HashMap<>();
         this.changes = new HashMap<>();
 
-        // 1. FINAL FIXED DB URL: This assumes 'pm_for_one_day.db' is in the project's root folder
         this.dbUrl = "jdbc:sqlite:pm_for_one_day.db";
 
         // 2. Load Driver
