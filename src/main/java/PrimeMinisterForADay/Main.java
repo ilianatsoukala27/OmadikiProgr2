@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) {
         BudgetManager manager = new BudgetManager();
         manager.initialize();
+        final int year = java.time.Year.now().getValue();
 
         BudgetData data = manager.getBudgetData();
 
@@ -21,11 +22,12 @@ public class Main {
         while (!exit) {
             System.out.println("\n===== BUDGET MENU =====");
             System.out.println("1. Δες τον προϋπολογισμό");
-            System.out.println("2. Τροποποίησε κατηγορία");
-            System.out.println("3. Δες αλλαγές");
-            System.out.println("4. Αποθήκευση αλλαγών στη βάση");
-            System.out.println("5. Ανάλυση εσόδων / εξόδων");
-            System.out.println("6. Έξοδος");
+            System.out.println("2. Φτίαξε κενό budget για τροποποίηση");
+            System.out.println("3. Τροποποίησε κατηγορία");
+            System.out.println("4. Δες αλλαγές");
+            System.out.println("5. Αποθήκευση αλλαγών στη βάση");
+            System.out.println("6. Ανάλυση εσόδων / εξόδων");
+            System.out.println("7. Έξοδος");
             System.out.print("Επέλεξε μία επιλογή: ");
 
             String choice = scanner.nextLine();
@@ -35,18 +37,21 @@ public class Main {
                     data.displayBudget();
                     break;
                 case "2":
-                    data.modifyCategory(scanner);
+                    BudgetManager.createBudgetAndCategories(year);
                     break;
                 case "3":
-                    data.showChanges();
+                    data.modifyCategory(scanner);
                     break;
                 case "4":
-                    data.saveToDB();
+                    data.showChanges();
                     break;
                 case "5":
-                    manager.printIncomeExpenseAnalysis();
+                    data.saveToDB();
                     break;
                 case "6":
+                    manager.printIncomeExpenseAnalysis();
+                    break;
+                case "7":
                     exit = true;
                     System.out.println("Έξοδος από το πρόγραμμα.");
                     break;

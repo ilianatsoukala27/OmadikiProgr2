@@ -1,6 +1,8 @@
 package PrimeMinisterForADay;
 
 import java.sql.*;
+import org.sqlite.SQLiteException;
+import org.sqlite.SQLiteErrorCode;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -175,54 +177,71 @@ public class BudgetManager {
     }
 
     public static boolean createBudgetAndCategories(int year) {
-        String budgetSql = "INSERT INTO budgets (budget_year, total_income, total_expenses, created_at, updated_at) "
-                   + "VALUES (?, ?, ?, ?, ?)";
-        String categorySql = "INSERT INTO categories (id_budget, category_name, category_type, initial_amount, current_amount, description, last_modified) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    String budgetSql = "INSERT INTO budgets (budget_year, total_income, total_expenses, created_at, updated_at) "
+                     + "VALUES (?, ?, ?, ?, ?)";
+    String categorySql = "INSERT INTO categories (id_budget, category_name, category_type, initial_amount, current_amount, description, last_modified) "
+                       + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            conn.setAutoCommit(false);
-            long budgetId;
-            LocalDateTime now = LocalDateTime.now();
+    try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        conn.setAutoCommit(false);
+        long budgetId;
+        LocalDateTime now = LocalDateTime.now();
 
-            try (PreparedStatement stmt = conn.prepareStatement(budgetSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                stmt.setInt(1, year);
-                stmt.setDouble(2, 0.0);
-                stmt.setDouble(3, 0.0);
-                stmt.setString(4, now.toString());
-                stmt.setString(5, null);
-                stmt.executeUpdate();
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        budgetId = rs.getLong(1);
-                    } else {
-                        conn.rollback();
-                        return false;
-                    }
+        try (PreparedStatement stmt = conn.prepareStatement(budgetSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, year);
+            stmt.setDouble(2, 0.0);
+            stmt.setDouble(3, 0.0);
+            stmt.setString(4, now.toString());
+            stmt.setString(5, null);
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    budgetId = rs.getLong(1);
+                } else {
+                    conn.rollback();
+                    return false;
                 }
             }
+        }
 
-            try (PreparedStatement stmt = conn.prepareStatement(categorySql)) {
-                for (int i = 0; i < categoryNames.length; i++) {
-                    stmt.setLong(1, budgetId);
-                    stmt.setString(2, categoryNames[i]);
-                    stmt.setString(3, i < 4 ? "Δαπάνη": "Έσοδο");
-                    stmt.setDouble(4, 0);
-                    stmt.setDouble(5, 0);
-                    stmt.setString(6, categoryDescriptions[i]);
-                    stmt.setString(7, now.toString());
-                    stmt.addBatch();
-                }
-
-                stmt.executeBatch();
+        try (PreparedStatement stmt = conn.prepareStatement(categorySql)) {
+            for (int i = 0; i < categoryNames.length; i++) {
+                stmt.setLong(1, budgetId);
+                stmt.setString(2, categoryNames[i]);
+                stmt.setString(3, i < 4 ? "Δαπάνη" : "Έσοδο");
+                stmt.setDouble(4, 0);
+                stmt.setDouble(5, 0);
+                stmt.setString(6, categoryDescriptions[i]);
+                stmt.setString(7, now.toString());
+                stmt.addBatch();
             }
-            conn.commit();
-            return true;
-        } catch (SQLException e) {
+
+            stmt.executeBatch();
+        }
+
+        conn.commit();
+        System.out.println("Το budget φτιάχτηκε με επιτυχία");
+        return true;
+
+    } catch (org.sqlite.SQLiteException e) {
+        if (e.getErrorCode() == org.sqlite.SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
+            System.out.println("Ο προϋπολογισμός για το έτος " + year +
+                               " υπάρχει ήδη και είναι έτοιμος για τροποποίηση.");
+            return false;
+        } else {
             e.printStackTrace();
             return false;
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
     }
+}
+
 
         public void displayCategoryTotals(){
             Map<String, Double> categories = budgetData.getCategories();
