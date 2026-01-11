@@ -85,7 +85,7 @@ OmadikiProgr2/
 ├─ logo.png                            # Λογότυπο εφαρμογής
 └─ Documents - Shortcut.lnk            # Συντόμευση (δεν επηρεάζει το project)
 
-
+```md
 ## Διάγραμμα UML
 
 ![UML Diagram](docs/diagram.png)
