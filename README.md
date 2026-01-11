@@ -53,7 +53,10 @@
 8. **Αποθήκευση αλλαγών**  
    - Οι τροποποιήσεις αποθηκεύονται προσωρινά στη μνήμη και γράφονται στη βάση SQLite κατόπιν επιβεβαίωσης.
 
+
 ## Δομή Αποθετηρίου
+
+```text
 OmadikiProgr2/
 ├─ src/
 │  ├─ main/
@@ -61,30 +64,27 @@ OmadikiProgr2/
 │  │     └─ PrimeMinisterForADay/
 │  │        ├─ BudgetData.java        # Διαχείριση δεδομένων & SQLite CRUD
 │  │        ├─ BudgetGUI.java         # Γραφικό περιβάλλον (Swing)
-│  │        ├─ BudgetManager.java     # Επιχειρησιακή λογική & έλεγχοι προϋπολογισμού
+│  │        ├─ BudgetManager.java     # Επιχειρησιακή λογική & έλεγχοι
 │  │        └─ Main.java              # Εκκίνηση εφαρμογής (CLI & GUI)
-│  │
 │  └─ test/
 │     └─ java/
 │        └─ PrimeMinisterForADay/
 │           ├─ BudgetDataTest.java
 │           ├─ BudgetGUITest.java
 │           └─ BudgetManagerTest.java
-│
 ├─ docs/
-│  └─ diagram.png                    # UML διάγραμμα κλάσεων
-│
+│  └─ diagram.png                     # UML διάγραμμα κλάσεων
 ├─ lib/
-│  └─ sqlite-jdbc-3.51.0.0.jar       # JDBC driver για SQLite
-│
-├─ PrimeMinisterForADay.jar          # Εκτελέσιμο αρχείο εφαρμογής
-├─ pm_for_one_day.db                 # Βάση δεδομένων SQLite
-├─ README.md                         # Τεχνική αναφορά / οδηγίες χρήσης
-├─ pom.xml                           # Maven configuration
-├─ dependency-reduced-pom.xml        # Παραγόμενο αρχείο Maven
+│  └─ sqlite-jdbc-3.51.0.0.jar         # JDBC driver για SQLite
+├─ PrimeMinisterForADay.jar            # Εκτελέσιμο αρχείο εφαρμογής
+├─ pm_for_one_day.db                   # Βάση δεδομένων SQLite
+├─ README.md                           # Τεχνική αναφορά / οδηγίες
+├─ pom.xml                             # Maven configuration
+├─ dependency-reduced-pom.xml          # Παραγόμενο Maven αρχείο
 ├─ .gitignore
-├─ logo.png                          # Λογότυπο εφαρμογής
-└─ Documents - Shortcut.lnk          # Συντόμευση (δεν επηρεάζει το project)
+├─ logo.png                            # Λογότυπο εφαρμογής
+└─ Documents - Shortcut.lnk            # Συντόμευση (δεν επηρεάζει το project)
+
 
 ## Διάγραμμα UML
 
